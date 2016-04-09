@@ -1,0 +1,5 @@
+depend:
+- ProtocolLib
+name: AttributeHider
+main: io.github.warren1001.attributehider.Main
+version: 3.0.1
