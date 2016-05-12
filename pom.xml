@@ -2,13 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.warren1001</groupId>
   <artifactId>attributehider</artifactId>
-  <version>3.0.1</version>
-  <properties>
-    <name>AttributeHider</name>
-    <depend>ProtocolLib</depend>
-  </properties>
+  <version>3.1.1</version>
   <build>
-    <finalName>${name}</finalName>
+    <finalName>AttributeHider</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -18,18 +14,6 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>io.github.warren1001</groupId>
-        <artifactId>plugin-yaml-creator</artifactId>
-        <version>1.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>yaml</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
@@ -58,6 +42,11 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot1_9_1</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot1_9_2</artifactId>
       <version>1.0.0</version>
     </dependency>
     <dependency>

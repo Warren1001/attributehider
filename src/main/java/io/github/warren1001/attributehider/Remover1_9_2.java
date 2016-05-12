@@ -1,22 +1,22 @@
 package io.github.warren1001.attributehider;
 
 import java.lang.reflect.Field;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
-import net.minecraft.server.v1_8_R3.EntityVillager;
-import net.minecraft.server.v1_8_R3.Item;
-import net.minecraft.server.v1_8_R3.ItemStack;
-import net.minecraft.server.v1_8_R3.MerchantRecipe;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import net.minecraft.server.v1_8_R3.NBTTagList;
+import net.minecraft.server.v1_9_R2.EntityPlayer;
+import net.minecraft.server.v1_9_R2.EntityVillager;
+import net.minecraft.server.v1_9_R2.Item;
+import net.minecraft.server.v1_9_R2.ItemStack;
+import net.minecraft.server.v1_9_R2.MerchantRecipe;
+import net.minecraft.server.v1_9_R2.NBTTagCompound;
+import net.minecraft.server.v1_9_R2.NBTTagList;
 
-public class Remover1_8_3 extends Remover {
+public class Remover1_9_2 extends Remover {
 	
-	public Remover1_8_3(Main plugin, Field field) {
+	public Remover1_9_2(Main plugin, Field field) {
 		super(plugin, field);
 	}
-	
+
 	@Override
 	public void remove(Player p) {
 		EntityPlayer player = ((CraftPlayer)p).getHandle();

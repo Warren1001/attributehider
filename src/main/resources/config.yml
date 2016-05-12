@@ -1,0 +1,18 @@
+# true to use one of the lists below, false to disable attributes for everything
+use-list: false
+command:
+  permission: 'ah.reload'
+  reloaded: '&6The AttributeHider configuration has been reloaded.'
+  no-permission: '&6You do not have permission to use this command!'
+list:
+  # true for whitelist, false for blacklist
+  use-whitelist: false
+  # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+  # above is a list of valid ids.
+  # only the below items will be affected by this plugin.
+  whitelist: # just examples
+  - 'AIR'
+  - 'WOOL'
+  # only the below items will be UNaffected by this plugin.
+  blacklist:
+  - 'BOOK_AND_QUILL' # it is recommended to leave this here
