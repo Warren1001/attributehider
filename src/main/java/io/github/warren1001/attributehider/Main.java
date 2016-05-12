@@ -88,10 +88,10 @@ public class Main extends JavaPlugin {
 	}
 	
 	public boolean shouldBeModified(ItemStack item) {
-		if(!getConfig().getBoolean("use-list")) return true;
 		if(item == null) return false;
 		Material type = item.getType();
 		if(type == Material.AIR) return false;
+		if(!getConfig().getBoolean("use-list")) return true;
 		return type != Material.AIR && (whitelist ? materials.contains(type) : !materials.contains(type));
 	}
 	
