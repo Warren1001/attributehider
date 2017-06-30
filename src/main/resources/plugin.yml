@@ -1,6 +1,6 @@
 name: AttributeHider
-main: io.github.warren1001.attributehider.Main
-version: 3.2.0
+main: com.kabryxis.attributehider.AttributeHider
+version: 4.0.0
 depend: [ProtocolLib]
 commands:
   attributehider:

@@ -1,7 +1,9 @@
 # true to use one of the lists below, false to disable attributes for everything
 use-list: false
+# Added to try to provide functionality with the Shopkeepers plugin. Set to false if you do not want this plugin to modify villager inventories.
+modify-villagers: true
 command:
-  permission: 'ah.reload'
+  permission: ah.reload
   reloaded: '&6The AttributeHider configuration has been reloaded.'
   no-permission: '&6You do not have permission to use this command!'
 list:
@@ -13,6 +15,6 @@ list:
   whitelist: # just examples
   - 'AIR'
   - 'WOOL'
-  # only the below items will be UNaffected by this plugin.
+  # every item except the items below will be affected by this plugin.
   blacklist:
   - 'BOOK_AND_QUILL' # it is recommended to leave this here

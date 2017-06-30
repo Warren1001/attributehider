@@ -1,19 +1,24 @@
-package io.github.warren1001.attributehider;
+package com.kabryxis.attributehider.remover.impl;
 
 import java.lang.reflect.Field;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.entity.Player;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
-import net.minecraft.server.v1_8_R3.EntityVillager;
-import net.minecraft.server.v1_8_R3.Item;
-import net.minecraft.server.v1_8_R3.ItemStack;
-import net.minecraft.server.v1_8_R3.MerchantRecipe;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import net.minecraft.server.v1_8_R3.NBTTagList;
 
-public class Remover1_8_3 extends Remover {
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+
+import com.kabryxis.attributehider.AttributeHider;
+import com.kabryxis.attributehider.remover.Remover;
+
+import net.minecraft.server.v1_12_R1.EntityPlayer;
+import net.minecraft.server.v1_12_R1.EntityVillager;
+import net.minecraft.server.v1_12_R1.Item;
+import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.MerchantRecipe;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+
+public class Remover1_12_1 extends Remover {
 	
-	public Remover1_8_3(Main plugin, Field field) {
+	public Remover1_12_1(AttributeHider plugin, Field field) {
 		super(plugin, field);
 	}
 	

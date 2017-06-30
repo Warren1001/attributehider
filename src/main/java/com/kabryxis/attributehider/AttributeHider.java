@@ -1,44 +1,49 @@
-package io.github.warren1001.attributehider;
+package com.kabryxis.attributehider;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.kabryxis.attributehider.remover.Remover;
 
-public class Main extends JavaPlugin {
-
-	private Remover remover;
-	private List<Material> materials = new ArrayList();
+public class AttributeHider extends JavaPlugin {
+	
+	private final List<Material> materials = new ArrayList<>();
+	
+	private Remover remover = null;
 	private boolean whitelist = false;
-
+	
 	@Override
 	public void onEnable() {
-		if(!setup()) return;
 		saveDefaultConfig();
 		setMaterials();
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.CUSTOM_PAYLOAD, PacketType.Play.Server.SET_SLOT) {
-
-			@Override
-			public void onPacketSending(PacketEvent event) {
-				PacketContainer packet = event.getPacket();
-				PacketType type = packet.getType();
-				if(type == PacketType.Play.Server.WINDOW_ITEMS) remover.remove(packet.getItemArrayModifier().read(0));
-				else if(type == PacketType.Play.Server.SET_SLOT) remover.remove(packet.getItemModifier().read(0));
-				else if(packet.getStrings().read(0).equals("MC|TrList")) remover.remove(event.getPlayer());
-			}
-			
-		});
+		ProtocolLibrary.getProtocolManager()
+				.addPacketListener(new PacketAdapter(this, PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT) {
+					
+					@Override
+					public void onPacketSending(PacketEvent event) {
+						PacketContainer packet = event.getPacket();
+						if(packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) remove(packet.getItemArrayModifier().read(0));
+						else remove(packet.getItemModifier().read(0));
+					}
+					
+				});
+		setupVillagers();
 	}
 	
 	@Override
@@ -49,6 +54,7 @@ public class Main extends JavaPlugin {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("command.no-permission")));
 					return true;
 				}
+				setupVillagers();
 				setMaterials();
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("command.reloaded")));
 				return true;
@@ -57,19 +63,31 @@ public class Main extends JavaPlugin {
 		return false;
 	}
 	
-	private boolean setup() {
-		String version = getServer().getClass().getPackage().getName();
-		version = version.substring(version.lastIndexOf('.') + 1);
-		try {
-			Field field = Class.forName("net.minecraft.server." + version + ".ContainerMerchant").getDeclaredField("merchant");
-			field.setAccessible(true);
-			remover = (Remover)Class.forName("io.github.warren1001.attributehider.Remover" + version.replaceAll("[a-zA-Z]", "")).getConstructor(getClass(), Field.class).newInstance(this, field);
-			return true;
-		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
-			getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[AttributeHider] This plugin does not support your Minecraft server version. Disabling...");
-			getServer().getPluginManager().disablePlugin(this);
-			return false;
+	private void setupVillagers() {
+		if(getConfig().getBoolean("modify-villagers")) {
+			String version = getServer().getClass().getPackage().getName();
+			version = version.substring(version.lastIndexOf('.') + 1);
+			try {
+				Field field = Class.forName("net.minecraft.server." + version + ".ContainerMerchant").getDeclaredField("merchant");
+				field.setAccessible(true);
+				remover = (Remover)Class.forName("io.github.warren1001.attributehider.Remover" + version.replaceAll("[a-zA-Z]", ""))
+						.getConstructor(getClass(), Field.class).newInstance(this, field);
+			}
+			catch(ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+				getServer().getConsoleSender()
+						.sendMessage(ChatColor.GREEN + "[AttributeHider] This plugin does not support your Minecraft server version. Disabling...");
+				getServer().getPluginManager().disablePlugin(this);
+				return;
+			}
+			ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, PacketType.Play.Server.CUSTOM_PAYLOAD) {
+				
+				@Override
+				public void onPacketSending(PacketEvent event) {
+					if(event.getPacket().getStrings().read(0).equals("MC|TrList")) remover.remove(event.getPlayer());
+				}
+				
+			});
 		}
 	}
 	
@@ -87,6 +105,15 @@ public class Main extends JavaPlugin {
 		}
 	}
 	
+	public void remove(ItemStack... items) {
+		for(ItemStack item : items) {
+			if(!shouldBeModified(item)) continue;
+			ItemMeta meta = item.getItemMeta();
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+			item.setItemMeta(meta);
+		}
+	}
+	
 	public boolean shouldBeModified(ItemStack item) {
 		if(item == null) return false;
 		Material type = item.getType();
@@ -95,6 +122,7 @@ public class Main extends JavaPlugin {
 		return type != Material.AIR && (whitelist ? materials.contains(type) : !materials.contains(type));
 	}
 	
+	@SuppressWarnings("deprecation")
 	public boolean shouldBeModified(int id) {
 		if(id == 0) return false;
 		if(!getConfig().getBoolean("use-list")) return true;
