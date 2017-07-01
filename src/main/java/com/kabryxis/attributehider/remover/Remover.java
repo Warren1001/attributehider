@@ -3,6 +3,7 @@ package com.kabryxis.attributehider.remover;
 import java.lang.reflect.Field;
 
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 
 import com.kabryxis.attributehider.AttributeHider;
 
@@ -16,6 +17,6 @@ public abstract class Remover {
 		this.field = field;
 	}
 	
-	public abstract void remove(Player player);
+	public abstract void remove(Villager villager, Player player);
 	
 }

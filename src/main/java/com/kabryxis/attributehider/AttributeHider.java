@@ -3,14 +3,22 @@ package com.kabryxis.attributehider;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,11 +29,11 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.kabryxis.attributehider.remover.Remover;
 
-public class AttributeHider extends JavaPlugin {
+public class AttributeHider extends JavaPlugin implements Listener {
 	
 	private final List<Material> materials = new ArrayList<>();
 	
-	private Remover remover = null;
+	private Remover remover;
 	private boolean whitelist = false;
 	
 	@Override
@@ -38,7 +46,10 @@ public class AttributeHider extends JavaPlugin {
 					@Override
 					public void onPacketSending(PacketEvent event) {
 						PacketContainer packet = event.getPacket();
-						if(packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) remove(packet.getItemArrayModifier().read(0));
+						if(packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
+							if(Version.VERSION > Version.v1_10_R1) remove(packet.getItemListModifier().read(0));
+							else remove(packet.getItemArrayModifier().read(0));
+						}
 						else remove(packet.getItemModifier().read(0));
 					}
 					
@@ -65,29 +76,21 @@ public class AttributeHider extends JavaPlugin {
 	
 	private void setupVillagers() {
 		if(getConfig().getBoolean("modify-villagers")) {
-			String version = getServer().getClass().getPackage().getName();
-			version = version.substring(version.lastIndexOf('.') + 1);
 			try {
-				Field field = Class.forName("net.minecraft.server." + version + ".ContainerMerchant").getDeclaredField("merchant");
+				Field field = Class.forName("net.minecraft.server." + Version.STRING + ".ContainerMerchant").getDeclaredField("merchant");
 				field.setAccessible(true);
-				remover = (Remover)Class.forName("io.github.warren1001.attributehider.Remover" + version.replaceAll("[a-zA-Z]", ""))
+				remover = (Remover)Class.forName("com.kabryxis.attributehider.remover.impl.Remover" + Version.STRING.replaceAll("[a-zA-Z]", ""))
 						.getConstructor(getClass(), Field.class).newInstance(this, field);
 			}
 			catch(ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException | NoSuchFieldException e) {
 				getServer().getConsoleSender()
 						.sendMessage(ChatColor.GREEN + "[AttributeHider] This plugin does not support your Minecraft server version. Disabling...");
+				e.printStackTrace();
 				getServer().getPluginManager().disablePlugin(this);
 				return;
 			}
-			ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, PacketType.Play.Server.CUSTOM_PAYLOAD) {
-				
-				@Override
-				public void onPacketSending(PacketEvent event) {
-					if(event.getPacket().getStrings().read(0).equals("MC|TrList")) remover.remove(event.getPlayer());
-				}
-				
-			});
+			getServer().getPluginManager().registerEvents(this, this);
 		}
 	}
 	
@@ -114,6 +117,15 @@ public class AttributeHider extends JavaPlugin {
 		}
 	}
 	
+	public void remove(Collection<? extends ItemStack> items) {
+		for(ItemStack item : items) {
+			if(!shouldBeModified(item)) continue;
+			ItemMeta meta = item.getItemMeta();
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+			item.setItemMeta(meta);
+		}
+	}
+	
 	public boolean shouldBeModified(ItemStack item) {
 		if(item == null) return false;
 		Material type = item.getType();
@@ -128,6 +140,14 @@ public class AttributeHider extends JavaPlugin {
 		if(!getConfig().getBoolean("use-list")) return true;
 		Material type = Material.getMaterial(id);
 		return type != null && (whitelist ? materials.contains(type) : !materials.contains(type));
+	}
+	
+	@EventHandler
+	public void onInventoryOpen(InventoryOpenEvent event) {
+		Inventory inventory = event.getInventory();
+		if(inventory instanceof MerchantInventory) {
+			remover.remove((Villager)inventory.getHolder(), (Player)event.getPlayer());
+		}
 	}
 	
 }
