@@ -1,5 +1,9 @@
-# true to use one of the lists below, false to disable attributes for everything
-use-list: false
+# Updater courtesy of inventivetalent
+update:
+  # If you want the plugin to notify you of any updates.
+  check: true
+  # If you want the plugin to automatically download the new version. The new version will activate upon server restart.
+  download: false
 # Added to try to provide functionality with the Shopkeepers plugin. Set to false if you do not want this plugin to modify villager inventories.
 modify-villagers: true
 command:
@@ -7,14 +11,12 @@ command:
   reloaded: '&6The AttributeHider configuration has been reloaded.'
   no-permission: '&6You do not have permission to use this command!'
 list:
-  # true for whitelist, false for blacklist
-  use-whitelist: false
-  # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-  # above is a list of valid ids.
-  # only the below items will be affected by this plugin.
-  whitelist: # just examples
-  - 'AIR'
-  - 'WOOL'
-  # every item except the items below will be affected by this plugin.
-  blacklist:
-  - 'BOOK_AND_QUILL' # it is recommended to leave this here
+  # Set to true for additive list, set to false for a custom list.
+  # An additive list would be used in the case to add additional materials for this plugin to modify what this plugin does not already modify.
+  # A custom list would be used in the case that this plugin modifies an item you wish the plugin to not modify, you have full control over what this plugin does modify.
+  mode: true
+  # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
+  list:
+  - 'EXAMPLE_ID'
+# Don't touch this
+version: 1
