@@ -195,7 +195,7 @@ public class Remover implements Listener {
 		// Updater setup
 		ConfigurationSection update = plugin.getConfig().getConfigurationSection("update");
 		if(update.getBoolean("check")) {
-			if(Version.VERSION <= Version.v1_8_R1) {
+			if(Version.VERSION < Version.v1_8_R2) {
 				plugin.message("This Spigot version does not support the updater. If you wish to use the updater, please update to Spigot 1.8.3 or above.");
 				return;
 			}
