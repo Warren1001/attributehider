@@ -1,22 +1,22 @@
-# Updater courtesy of inventivetalent
-update:
+update: # Updater courtesy of inventivetalent
   # If you want the plugin to notify you of any updates.
   check: true
-  # If you want the plugin to automatically download the new version. The new version will activate upon server restart.
+  # If you want the plugin to automatically download the new version. The new version will activate upon server restart. The above must be true.
   download: false
-# Added to try to provide functionality with the Shopkeepers plugin. Set to false if you do not want this plugin to modify villager inventories.
-modify-villagers: true
+modify:
+  # Added to try to provide functionality with the Shopkeepers plugin. Set to false if you do not want this plugin to modify villager inventories.
+  villagers: true
 command:
   permission: ah.reload
   reloaded: '&6The AttributeHider configuration has been reloaded.'
   no-permission: '&6You do not have permission to use this command!'
-list:
-  # Set to true for additive list, set to false for a custom list.
-  # An additive list would be used in the case to add additional materials for this plugin to modify what this plugin does not already modify.
-  # A custom list would be used in the case that this plugin modifies an item you wish the plugin to not modify, you have full control over what this plugin does modify.
-  mode: true
-  # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
-  list:
+lists: # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
+  attributes: # The below options are only for attributes.
+     # If true, adds the below list to what the plugin already modifies. If false, only modifies the below list, ignoring what the plugin already modifies.
+    mode: true
+    list: # List of item ids to remove attributes on. If you're happy with what the plugin already modifies, you don't have to change anything.
+    - 'EXAMPLE_ID'
+  enchants: # List of item ids to hide enchantments on. To disable, remove all values except the first one then change the first value to 'EXAMPLE_ID'.
   - 'EXAMPLE_ID'
 # Don't touch this
-version: 1
+version: 2
