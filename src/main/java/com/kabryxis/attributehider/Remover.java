@@ -11,7 +11,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
@@ -19,6 +18,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.PluginManager;
 import org.inventivetalent.update.spiget.SpigetUpdate;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
@@ -29,13 +29,13 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.kabryxis.attributehider.version.Version;
-import com.kabryxis.attributehider.version.wrapper.Wrappable;
-import com.kabryxis.attributehider.version.wrapper.WrapperCache;
-import com.kabryxis.attributehider.version.wrapper.entityvillager.WrappedEntityVillager;
-import com.kabryxis.attributehider.version.wrapper.itemstack.WrappedItemStack;
-import com.kabryxis.attributehider.version.wrapper.merchantrecipe.WrappedMerchantRecipe;
-import com.kabryxis.attributehider.version.wrapper.merchantrecipelist.WrappedMerchantRecipeList;
+import com.kabryxis.kabutils.spigot.version.Version;
+import com.kabryxis.kabutils.spigot.version.wrapper.Wrappable;
+import com.kabryxis.kabutils.spigot.version.wrapper.WrapperCache;
+import com.kabryxis.kabutils.spigot.version.wrapper.entity.villager.WrappedEntityVillager;
+import com.kabryxis.kabutils.spigot.version.wrapper.item.itemstack.WrappedItemStack;
+import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipe.WrappedMerchantRecipe;
+import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipelist.WrappedMerchantRecipeList;
 
 public class Remover implements Listener {
 	
@@ -49,7 +49,7 @@ public class Remover implements Listener {
 			Material.DIAMOND_HOE));
 	
 	private List<Material> materials, enchants;
-	private boolean mode = true, hideAttributes = true, isRegistered = false;
+	private boolean mode = true, hideAttributes = true;
 	
 	public Remover(AttributeHider plugin) {
 		this.plugin = plugin;
@@ -59,7 +59,7 @@ public class Remover implements Listener {
 			public void onPacketSending(PacketEvent event) {
 				PacketContainer packet = event.getPacket();
 				if(packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
-					if(Version.VERSION >= Version.v1_11_R1) {
+					if(Version.VERSION.isVersionAtLeast(Version.v1_11_R1)) {
 						StructureModifier<List<ItemStack>> modifier = packet.getItemListModifier();
 						List<ItemStack> items = modifier.read(0);
 						modify(items);
@@ -116,7 +116,7 @@ public class Remover implements Listener {
 		ItemStack itemStack = item.getBukkitItemStack();
 		modify(itemStack);
 		item.setBukkitItemStack(itemStack);
-		return item.getHandle();
+		return item.get();
 	}
 	
 	public void modify(List<ItemStack> items) {
@@ -144,7 +144,7 @@ public class Remover implements Listener {
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event) {
 		Inventory inventory = event.getInventory();
-		if(inventory instanceof MerchantInventory) modify((Villager)inventory.getHolder(), (Player)event.getPlayer());
+		if(inventory instanceof MerchantInventory && inventory.getHolder() != null) modify((Villager)inventory.getHolder(), (Player)event.getPlayer());
 	}
 	
 	public void setup() {
@@ -180,22 +180,13 @@ public class Remover implements Listener {
 				else plugin.getLogger().warning("Found invalid Material in enchants list: " + s);
 			}
 		}
-		// Modifications setup
-		ConfigurationSection modify = plugin.getConfig().getConfigurationSection("modify");
-		if(modify.getBoolean("villagers")) {
-			if(!isRegistered) {
-				plugin.getServer().getPluginManager().registerEvents(this, plugin);
-				isRegistered = true;
-			}
-		}
-		else if(isRegistered) {
-			HandlerList.unregisterAll(this);
-			isRegistered = false;
-		}
+		// Listeners setup
+		PluginManager pm = plugin.getServer().getPluginManager();
+		pm.registerEvents(this, plugin);
+		if(pm.getPlugin("Shopkeepers") != null) pm.registerEvents(new ShopkeepersListener(this), plugin);
 		// Updater setup
-		ConfigurationSection update = plugin.getConfig().getConfigurationSection("update");
-		if(update.getBoolean("check")) {
-			if(Version.VERSION < Version.v1_8_R2) {
+		if(plugin.getConfig().getBoolean("check-updates")) {
+			if(!Version.VERSION.isVersionAtLeast(Version.v1_8_R2)) {
 				plugin.message("This Spigot version does not support the updater. If you wish to use the updater, please update to Spigot 1.8.3 or above.");
 				return;
 			}
@@ -208,10 +199,7 @@ public class Remover implements Listener {
 				
 				@Override
 				public void updateAvailable(String newVersion, String url, boolean canDownload) {
-					plugin.message(update.getBoolean("download")
-							? (canDownload && updater.downloadUpdate() ? "A new version (" + newVersion + ") of AttributeHider has been downloaded. It will be loaded upon server restart."
-									: "A new version (" + newVersion + ") of AttributeHider is available but is unable to be downloaded at this time.")
-							: "A new version (" + newVersion + ") of AttributeHider is available.");
+					plugin.message("A new version (" + newVersion + ") of AttributeHider is available.");
 				}
 				
 			});

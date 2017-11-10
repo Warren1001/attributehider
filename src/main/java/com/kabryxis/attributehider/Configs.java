@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 
 public class Configs {
 	
-	public final static int VERSION = 2;
+	public final static int VERSION = 3;
 	
 	private final static ConfigTransformer[] transformers = new ConfigTransformer[VERSION - 1];
 	
@@ -28,6 +28,20 @@ public class Configs {
 				attributesList.set("mode", list.get("mode"));
 				attributesList.set("list", list.get("list"));
 				oldConfig.set("list", null);
+				for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
+					newConfig.set(entry.getKey(), entry.getValue());
+				}
+			}
+			
+		};
+		// Version 2 to Version 3
+		transformers[1] = new ConfigTransformer() {
+			
+			@Override
+			public void transform(FileConfiguration oldConfig, FileConfiguration newConfig) {
+				oldConfig.set("modify", null);
+				newConfig.set("check-updates", oldConfig.get("update.check"));
+				oldConfig.set("update", null);
 				for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
 					newConfig.set(entry.getKey(), entry.getValue());
 				}

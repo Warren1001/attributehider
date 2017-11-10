@@ -1,11 +1,5 @@
-update: # Updater courtesy of inventivetalent
-  # If you want the plugin to notify you of any updates.
-  check: true
-  # If you want the plugin to automatically download the new version. The new version will activate upon server restart. The above must be true.
-  download: false
-modify:
-  # Added to try to provide functionality with the Shopkeepers plugin. Set to false if you do not want this plugin to modify villager inventories.
-  villagers: true
+# Updater courtesy of inventivetalent. If you want the plugin to notify you of any updates.
+check-updates: true
 command:
   permission: ah.reload
   reloaded: '&6The AttributeHider configuration has been reloaded.'
@@ -19,4 +13,4 @@ lists: # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - Thi
   enchants: # List of item ids to hide enchantments on. To disable, remove all values except the first one then change the first value to 'EXAMPLE_ID'.
   - 'EXAMPLE_ID'
 # Don't touch this
-version: 2
+version: 3

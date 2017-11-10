@@ -2,6 +2,7 @@ name: AttributeHider
 main: com.kabryxis.attributehider.AttributeHider
 version: 5.0.0
 depend: [ProtocolLib]
+softdepend: [Shopkeepers]
 commands:
   attributehider:
     usage: /ah reload

@@ -102,6 +102,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.nisovin</groupId>
+      <artifactId>shopkeepers</artifactId>
+      <version>1.83</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.inventivetalent.spiget-update</groupId>
       <artifactId>bukkit</artifactId>
       <version>1.4.0</version>

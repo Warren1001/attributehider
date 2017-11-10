@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.kabryxis.attributehider.version.Version;
+import com.kabryxis.kabutils.spigot.version.Version;
 
 public class AttributeHider extends JavaPlugin implements Listener {
 	
