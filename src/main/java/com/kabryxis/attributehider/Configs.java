@@ -1,14 +1,14 @@
 package com.kabryxis.attributehider;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Map.Entry;
-
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Map.Entry;
 
 public class Configs {
 	
@@ -18,35 +18,25 @@ public class Configs {
 	
 	static {
 		// Version 1 to Version 2
-		transformers[0] = new ConfigTransformer() {
-			
-			@Override
-			public void transform(FileConfiguration oldConfig, FileConfiguration newConfig) {
-				newConfig.set("modify.villagers", oldConfig.get("modify-villagers"));
-				oldConfig.set("modify-villagers", null);
-				ConfigurationSection list = oldConfig.getConfigurationSection("list"), attributesList = newConfig.getConfigurationSection("lists.attributes");
-				attributesList.set("mode", list.get("mode"));
-				attributesList.set("list", list.get("list"));
-				oldConfig.set("list", null);
-				for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
-					newConfig.set(entry.getKey(), entry.getValue());
-				}
+		transformers[0] = (oldConfig, newConfig) -> {
+			newConfig.set("modify.villagers", oldConfig.get("modify-villagers"));
+			oldConfig.set("modify-villagers", null);
+			ConfigurationSection list = oldConfig.getConfigurationSection("list"), attributesList = newConfig.getConfigurationSection("lists.attributes");
+			attributesList.set("mode", list.get("mode"));
+			attributesList.set("list", list.get("list"));
+			oldConfig.set("list", null);
+			for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
+				newConfig.set(entry.getKey(), entry.getValue());
 			}
-			
 		};
 		// Version 2 to Version 3
-		transformers[1] = new ConfigTransformer() {
-			
-			@Override
-			public void transform(FileConfiguration oldConfig, FileConfiguration newConfig) {
-				oldConfig.set("modify", null);
-				newConfig.set("check-updates", oldConfig.get("update.check"));
-				oldConfig.set("update", null);
-				for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
-					newConfig.set(entry.getKey(), entry.getValue());
-				}
+		transformers[1] = (oldConfig, newConfig) -> {
+			oldConfig.set("modify", null);
+			newConfig.set("check-updates", oldConfig.get("update.check"));
+			oldConfig.set("update", null);
+			for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
+				newConfig.set(entry.getKey(), entry.getValue());
 			}
-			
 		};
 	}
 	
@@ -80,7 +70,7 @@ public class Configs {
 	
 	public interface ConfigTransformer {
 		
-		public void transform(FileConfiguration oldConfig, FileConfiguration newConfig);
+		void transform(FileConfiguration oldConfig, FileConfiguration newConfig);
 		
 	}
 	

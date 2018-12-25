@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kabryxis</groupId>
   <artifactId>attributehider</artifactId>
-  <version>5.1.1</version>
+  <version>5.2.0</version>
   <build>
     <finalName>AttributeHider</finalName>
     <plugins>
@@ -45,8 +45,18 @@
       <id>dmulloy2-repo</id>
       <url>http://repo.dmulloy2.net/content/groups/public/</url>
     </repository>
+    <repository>
+      <id>shopkeepers-repo</id>
+      <url>http://nexus3.cube-nation.de/repository/releases/</url>
+    </repository>
   </repositories>
   <dependencies>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.13.2-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot1_8_1</artifactId>
@@ -96,15 +106,21 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.comphenix.protocol</groupId>
-      <artifactId>ProtocolLib-API</artifactId>
-      <version>4.3.0</version>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot1_13_2</artifactId>
+      <version>1.0.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.nisovin</groupId>
-      <artifactId>shopkeepers</artifactId>
-      <version>1.83</version>
+      <groupId>com.comphenix.protocol</groupId>
+      <artifactId>ProtocolLib-API</artifactId>
+      <version>4.4.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.nisovin.shopkeepers</groupId>
+      <artifactId>ShopkeepersAPI</artifactId>
+      <version>2.4.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -1,11 +1,10 @@
 package com.kabryxis.attributehider;
 
+import com.nisovin.shopkeepers.api.events.ShopkeeperEditedEvent;
+import com.nisovin.shopkeepers.api.events.ShopkeeperTradeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-
-import com.nisovin.shopkeepers.events.OpenTradeEvent;
-import com.nisovin.shopkeepers.events.ShopkeeperEditedEvent;
 
 public class ShopkeepersListener implements Listener {
 	
@@ -15,14 +14,22 @@ public class ShopkeepersListener implements Listener {
 		this.remover = remover;
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onOpenTrade(OpenTradeEvent event) {
-		event.getShopkeeper().getRecipes().forEach(remover::modify);
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onShopkeeperTrade(ShopkeeperTradeEvent event) {
+		event.getShopkeeper().getTradingRecipes(event.getPlayer()).forEach(r -> {
+			remover.modify(r.getItem1());
+			remover.modify(r.getItem2());
+			remover.modify(r.getResultItem());
+		});
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onShopkeeperEdited(ShopkeeperEditedEvent event) {
-		event.getShopkeeper().getRecipes().forEach(remover::modify);
+		event.getShopkeeper().getTradingRecipes(event.getPlayer()).forEach(r -> {
+			remover.modify(r.getItem1());
+			remover.modify(r.getItem2());
+			remover.modify(r.getResultItem());
+		});
 	}
 	
 }

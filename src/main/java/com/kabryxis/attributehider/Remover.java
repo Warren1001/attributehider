@@ -1,14 +1,19 @@
 package com.kabryxis.attributehider;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
+import com.google.common.collect.Sets;
+import com.kabryxis.kabutils.spigot.version.Version;
+import com.kabryxis.kabutils.spigot.version.wrapper.entity.villager.WrappedEntityVillager;
+import com.kabryxis.kabutils.spigot.version.wrapper.item.itemstack.WrappedItemStack;
+import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipe.WrappedMerchantRecipe;
+import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipelist.WrappedMerchantRecipeList;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,36 +28,38 @@ import org.inventivetalent.update.spiget.SpigetUpdate;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.StructureModifier;
-import com.kabryxis.kabutils.spigot.version.Version;
-import com.kabryxis.kabutils.spigot.version.wrapper.Wrappable;
-import com.kabryxis.kabutils.spigot.version.wrapper.WrapperCache;
-import com.kabryxis.kabutils.spigot.version.wrapper.entity.villager.WrappedEntityVillager;
-import com.kabryxis.kabutils.spigot.version.wrapper.item.itemstack.WrappedItemStack;
-import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipe.WrappedMerchantRecipe;
-import com.kabryxis.kabutils.spigot.version.wrapper.merchant.merchantrecipelist.WrappedMerchantRecipeList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Remover implements Listener {
 	
 	private final AttributeHider plugin;
-	private final Set<Material> valid = new HashSet<>(Arrays.asList(Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS, Material.CHAINMAIL_HELMET,
-			Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS, Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS,
-			Material.GOLD_HELMET, Material.GOLD_CHESTPLATE, Material.GOLD_LEGGINGS, Material.GOLD_BOOTS, Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS,
-			Material.DIAMOND_BOOTS, Material.WOOD_SWORD, Material.WOOD_PICKAXE, Material.WOOD_AXE, Material.WOOD_SPADE, Material.WOOD_HOE, Material.STONE_SWORD, Material.STONE_PICKAXE,
-			Material.STONE_AXE, Material.STONE_SPADE, Material.STONE_HOE, Material.IRON_SWORD, Material.IRON_PICKAXE, Material.IRON_AXE, Material.IRON_SPADE, Material.IRON_HOE, Material.GOLD_SWORD,
-			Material.GOLD_PICKAXE, Material.GOLD_AXE, Material.GOLD_SPADE, Material.GOLD_HOE, Material.DIAMOND_SWORD, Material.DIAMOND_PICKAXE, Material.DIAMOND_AXE, Material.DIAMOND_SPADE,
-			Material.DIAMOND_HOE));
+	private final Set<Material> valid = Sets.newHashSet(Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS,
+			Material.CHAINMAIL_HELMET, Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS, Material.IRON_HELMET,
+			Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS, Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE,
+			Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS, Material.STONE_SWORD, Material.STONE_PICKAXE, Material.STONE_AXE, Material.STONE_HOE,
+			Material.IRON_SWORD, Material.IRON_PICKAXE, Material.IRON_AXE, Material.IRON_HOE, Material.DIAMOND_SWORD, Material.DIAMOND_PICKAXE,
+			Material.DIAMOND_AXE, Material.DIAMOND_HOE);
 	
 	private List<Material> materials, enchants;
 	private boolean mode = true, hideAttributes = true;
 	
 	public Remover(AttributeHider plugin) {
 		this.plugin = plugin;
+		if(Version.VERSION.isVersionAtLeast(Version.v1_13_R2)) {
+			valid.addAll(Arrays.asList(Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS,
+					Material.WOODEN_SWORD, Material.WOODEN_PICKAXE, Material.WOODEN_AXE, Material.WOODEN_SHOVEL, Material.WOODEN_HOE,
+					Material.IRON_SHOVEL, Material.STONE_SHOVEL, Material.GOLDEN_PICKAXE, Material.GOLDEN_AXE, Material.GOLDEN_SHOVEL, Material.GOLDEN_HOE,
+					Material.GOLDEN_SWORD, Material.DIAMOND_SHOVEL, Material.TURTLE_HELMET));
+		}
+		else {
+			valid.addAll(Arrays.asList(Material.matchMaterial("GOLD_HELMET"), Material.matchMaterial("GOLD_CHESTPLATE"), Material.matchMaterial("GOLD_LEGGINGS"),
+					Material.matchMaterial("GOLD_BOOTS"), Material.matchMaterial("WOOD_SWORD"), Material.matchMaterial("WOOD_PICKAXE"),
+					Material.matchMaterial("WOOD_AXE"), Material.matchMaterial("WOOD_SPADE"), Material.matchMaterial("WOOD_HOE"),
+					Material.matchMaterial("STONE_SPADE"), Material.matchMaterial("IRON_SPADE"), Material.matchMaterial("DIAMOND_SPADE"),
+					Material.matchMaterial("GOLD_SWORD"), Material.matchMaterial("GOLD_PICKAXE"), Material.matchMaterial("GOLD_AXE"),
+					Material.matchMaterial("GOLD_SPADE"), Material.matchMaterial("GOLD_HOE")));
+		}
 		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin, PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT) {
 			
 			@Override
@@ -86,52 +93,41 @@ public class Remover implements Listener {
 	
 	public boolean shouldRemoveAttributes(Material type) {
 		if(!hideAttributes) return false;
-		boolean b = materials == null ? false : materials.contains(type);
+		boolean b = materials != null && materials.contains(type);
 		return mode ? valid.contains(type) || b : b;
 	}
 	
 	public boolean shouldHideEnchants(Material type) {
-		return enchants == null ? false : enchants.contains(type);
+		return enchants != null && enchants.contains(type);
 	}
 	
-	public void modify(Villager villager, Player player) {
-		WrappedEntityVillager<?> handle = WrapperCache.get(WrappedEntityVillager.class);
-		handle.setVillager(villager);
-		WrappedMerchantRecipeList<?> list = handle.getOffers();
-		List<WrappedMerchantRecipe<?>> recipes = list.getRecipes();
-		WrappedItemStack<?> item = WrapperCache.get(WrappedItemStack.class);
-		for(WrappedMerchantRecipe<?> recipe : recipes) {
-			recipe.newInstance(getItem(item, recipe.handleGetBuyingItem1()), getItem(item, recipe.handleGetBuyingItem2()), getItem(item, recipe.handleGetSellingItem()), recipe.getUses(),
-					recipe.getMaxUses());
-		}
-		list.setRecipes(recipes);
-		item.cache();
-		recipes.forEach(Wrappable::cache);
-		list.cache();
-		handle.cache();
+	public void modify(Villager villager) {
+		WrappedEntityVillager entityVillager = WrappedEntityVillager.newInstance(villager);
+		WrappedMerchantRecipeList merchantRecipeList = entityVillager.getOffers();
+		WrappedItemStack item = WrappedItemStack.newInstance();
+		merchantRecipeList.setRecipes(merchantRecipeList.getRecipes().stream().map(recipe -> WrappedMerchantRecipe.newInstance(getItem(item, recipe.getBuyingItem1()), getItem(item, recipe.getBuyingItem2()),
+				getItem(item, recipe.getSellingItem()), recipe.getUses(), recipe.getMaxUses())).collect(Collectors.toList()));
 	}
 	
-	private Object getItem(WrappedItemStack<?> item, Object handle) {
+	private Object getItem(WrappedItemStack item, Object handle) {
 		item.setHandle(handle);
 		ItemStack itemStack = item.getBukkitItemStack();
+		if(itemStack.getType() == Material.AIR) return handle;
 		modify(itemStack);
-		item.setBukkitItemStack(itemStack);
-		return item.get();
+		item.setHandle(itemStack);
+		return item.getHandle();
 	}
 	
 	public void modify(List<ItemStack> items) {
 		items.forEach(this::modify);
-		
 	}
 	
 	public void modify(ItemStack[] items) {
-		for(ItemStack item : items) {
-			modify(item);
-		}
+		com.kabryxis.kabutils.data.Arrays.forEach(items, this::modify);
 	}
 	
 	public void modify(ItemStack item) {
-		if(item == null) return;
+		if(item == null || item.getType() == Material.AIR) return;
 		Material type = item.getType();
 		boolean hideAttributes = shouldRemoveAttributes(type), hideEnchants = shouldHideEnchants(type);
 		if(!hideAttributes && !hideEnchants) return;
@@ -144,7 +140,7 @@ public class Remover implements Listener {
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event) {
 		Inventory inventory = event.getInventory();
-		if(inventory instanceof MerchantInventory && inventory.getHolder() != null) modify((Villager)inventory.getHolder(), (Player)event.getPlayer());
+		if(inventory instanceof MerchantInventory && inventory.getHolder() instanceof Villager) modify((Villager)inventory.getHolder());
 	}
 	
 	public void setup() {
@@ -175,7 +171,7 @@ public class Remover implements Listener {
 			else enchants.clear();
 			for(String s : enchantsList) {
 				if(s.equals("EXAMPLE_ID")) continue;
-				Material type = Material.getMaterial(s);
+				Material type = Material.matchMaterial(s);
 				if(type != null) enchants.add(type);
 				else plugin.getLogger().warning("Found invalid Material in enchants list: " + s);
 			}

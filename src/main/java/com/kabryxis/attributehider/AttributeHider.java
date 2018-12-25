@@ -18,7 +18,7 @@ public class AttributeHider extends JavaPlugin implements Listener {
 			disablePlugin("This plugin requires the plugin ProtocolLib to be installed.");
 			return;
 		}
-		if(Version.VERSION == Version.UNSUPPORTED) {
+		if(Version.VERSION == Version.UNKNOWN) {
 			disablePlugin("This plugin does not support your Minecraft server version.");
 			return;
 		}
