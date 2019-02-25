@@ -50,7 +50,7 @@ public class Remover implements Listener {
 			valid.addAll(Arrays.asList(Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS,
 					Material.WOODEN_SWORD, Material.WOODEN_PICKAXE, Material.WOODEN_AXE, Material.WOODEN_SHOVEL, Material.WOODEN_HOE,
 					Material.IRON_SHOVEL, Material.STONE_SHOVEL, Material.GOLDEN_PICKAXE, Material.GOLDEN_AXE, Material.GOLDEN_SHOVEL, Material.GOLDEN_HOE,
-					Material.GOLDEN_SWORD, Material.DIAMOND_SHOVEL, Material.TURTLE_HELMET));
+					Material.GOLDEN_SWORD, Material.DIAMOND_SHOVEL, Material.TURTLE_HELMET, Material.TRIDENT));
 		}
 		else {
 			valid.addAll(Arrays.asList(Material.matchMaterial("GOLD_HELMET"), Material.matchMaterial("GOLD_CHESTPLATE"), Material.matchMaterial("GOLD_LEGGINGS"),
