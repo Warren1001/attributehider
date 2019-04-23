@@ -12,5 +12,6 @@ lists: # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - Thi
     - 'EXAMPLE_ID'
   enchants: # List of item ids to hide enchantments on. To disable, remove all values except the first one then change the first value to 'EXAMPLE_ID'.
   - 'EXAMPLE_ID'
+  potions: false # Hide potion effects on all potions.
 # Don't touch this
-version: 3
+version: 4

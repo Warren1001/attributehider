@@ -101,6 +101,10 @@ public class Remover implements Listener {
 		return enchants != null && enchants.contains(type);
 	}
 	
+	public boolean shouldHidePotionEffects() {
+		return plugin.getConfig().getBoolean("lists.potions");
+	}
+	
 	public void modify(Villager villager) {
 		WrappedEntityVillager entityVillager = WrappedEntityVillager.newInstance(villager);
 		WrappedMerchantRecipeList merchantRecipeList = entityVillager.getOffers();
@@ -129,11 +133,15 @@ public class Remover implements Listener {
 	public void modify(ItemStack item) {
 		if(item == null || item.getType() == Material.AIR) return;
 		Material type = item.getType();
-		boolean hideAttributes = shouldRemoveAttributes(type), hideEnchants = shouldHideEnchants(type);
-		if(!hideAttributes && !hideEnchants) return;
+		boolean hideAttributes = shouldRemoveAttributes(type), hideEnchants = shouldHideEnchants(type),
+				hidePotionEffects = shouldHidePotionEffects() && (type == Material.POTION ||
+						(Version.VERSION.isVersionAtLeast(Version.v1_9_R1) && (type == Material.SPLASH_POTION ||
+								type == Material.LINGERING_POTION)));
+		if(!hideAttributes && !hideEnchants && !shouldHidePotionEffects()) return;
 		ItemMeta meta = item.getItemMeta();
 		if(hideAttributes && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		if(hideEnchants && !meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		if(hidePotionEffects && !meta.hasItemFlag(ItemFlag.HIDE_POTION_EFFECTS)) meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		item.setItemMeta(meta);
 	}
 	

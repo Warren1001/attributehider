@@ -8,11 +8,10 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map.Entry;
 
 public class Configs {
 	
-	public final static int VERSION = 3;
+	public final static int VERSION = 4;
 	
 	private final static ConfigTransformer[] transformers = new ConfigTransformer[VERSION - 1];
 	
@@ -25,19 +24,15 @@ public class Configs {
 			attributesList.set("mode", list.get("mode"));
 			attributesList.set("list", list.get("list"));
 			oldConfig.set("list", null);
-			for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
-				newConfig.set(entry.getKey(), entry.getValue());
-			}
 		};
 		// Version 2 to Version 3
 		transformers[1] = (oldConfig, newConfig) -> {
 			oldConfig.set("modify", null);
 			newConfig.set("check-updates", oldConfig.get("update.check"));
 			oldConfig.set("update", null);
-			for(Entry<String, Object> entry : oldConfig.getValues(true).entrySet()) {
-				newConfig.set(entry.getKey(), entry.getValue());
-			}
 		};
+		// Version 3 to Version 4
+		transformers[2] = (oldConfig, newConfig) -> {};
 	}
 	
 	public static int check(Plugin plugin) {
@@ -53,6 +48,8 @@ public class Configs {
 			for(int i = current - 1; i <= VERSION - 2; i++) {
 				transformers[i].transform(oldConfig, newConfig);
 			}
+			oldConfig.getValues(true).entrySet().stream().filter(e -> !(e.getValue() instanceof ConfigurationSection))
+					.forEach(entry -> newConfig.set(entry.getKey(), entry.getValue()));
 			newConfig.set("version", VERSION);
 			try {
 				isr.close();
