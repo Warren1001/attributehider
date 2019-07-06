@@ -43,11 +43,11 @@ public class AttributeHider extends JavaPlugin implements Listener {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("command.no-permission")));
 				return true;
 			}
-				if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-					reloadConfig();
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("command.reloaded")));
-					remover.setup();
-					return true;
+			if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+				reloadConfig();
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("command.reloaded")));
+				remover.setup();
+				return true;
 			}
 		}
 		return false;
