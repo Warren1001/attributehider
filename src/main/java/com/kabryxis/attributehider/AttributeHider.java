@@ -1,12 +1,11 @@
 package com.kabryxis.attributehider;
 
+import com.kabryxis.kabutils.spigot.version.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.kabryxis.kabutils.spigot.version.Version;
 
 public class AttributeHider extends JavaPlugin implements Listener {
 	
