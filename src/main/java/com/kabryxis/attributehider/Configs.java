@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 
 public class Configs {
 	
-	public final static int VERSION = 4;
+	public final static int VERSION = 5;
 	
 	private final static ConfigTransformer[] transformers = new ConfigTransformer[VERSION - 1];
 	
@@ -33,6 +33,7 @@ public class Configs {
 		};
 		// Version 3 to Version 4
 		transformers[2] = (oldConfig, newConfig) -> {};
+		transformers[3] = (oldConfig, newConfig) -> newConfig.set("lists.unbreakable", false);
 	}
 	
 	public static int check(Plugin plugin) {

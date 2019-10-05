@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.google.common.collect.Sets;
+import com.kabryxis.kabutils.data.Lists;
 import com.kabryxis.kabutils.spigot.version.Version;
 import com.kabryxis.kabutils.spigot.version.wrapper.entity.villager.WrappedEntityVillager;
 import com.kabryxis.kabutils.spigot.version.wrapper.item.itemstack.WrappedItemStack;
@@ -42,7 +43,7 @@ public class Remover implements Listener {
 			Material.DIAMOND_AXE, Material.DIAMOND_HOE);
 	
 	private List<Material> materials, enchants;
-	private boolean mode = true, hideAttributes = true;
+	private boolean mode = true, hideAttributes = true, hideAllEnchants = false, hideUnbreakable = false;
 	
 	public Remover(AttributeHider plugin) {
 		this.plugin = plugin;
@@ -98,11 +99,15 @@ public class Remover implements Listener {
 	}
 	
 	public boolean shouldHideEnchants(Material type) {
-		return enchants != null && enchants.contains(type);
+		return hideAllEnchants || (enchants != null && enchants.contains(type));
 	}
 	
 	public boolean shouldHidePotionEffects() {
-		return plugin.getConfig().getBoolean("lists.potions");
+		return plugin.getConfig().getBoolean("lists.potions", false);
+	}
+	
+	public boolean shouldHideUnbreakableTag() {
+		return plugin.getConfig().getBoolean("lists.unbreakable", false);
 	}
 	
 	public void modify(Villager villager) {
@@ -133,13 +138,15 @@ public class Remover implements Listener {
 	public void modify(ItemStack item) {
 		if(item == null || item.getType() == Material.AIR) return;
 		Material type = item.getType();
-		boolean hideAttributes = shouldRemoveAttributes(type), hideEnchants = shouldHideEnchants(type),
-				hidePotionEffects = shouldHidePotionEffects() && (type == Material.POTION ||
-						(Version.VERSION.isVersionAtLeast(Version.v1_9_R1) && (type == Material.SPLASH_POTION ||
-								type == Material.LINGERING_POTION)));
-		if(!hideAttributes && !hideEnchants && !shouldHidePotionEffects()) return;
+		boolean hideAttributes = shouldRemoveAttributes(type);
+		boolean hideUnbreakable = shouldHideUnbreakableTag();
+		boolean hideEnchants = shouldHideEnchants(type);
+		boolean hidePotionEffects = shouldHidePotionEffects() && (type == Material.POTION || (Version.VERSION.isVersionAtLeast(Version.v1_9_R1)
+				&& (type == Material.SPLASH_POTION || type == Material.LINGERING_POTION)));
+		if(!hideAttributes && !hideUnbreakable && !hideEnchants && !shouldHidePotionEffects()) return;
 		ItemMeta meta = item.getItemMeta();
 		if(hideAttributes && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		if(hideUnbreakable && !meta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 		if(hideEnchants && !meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		if(hidePotionEffects && !meta.hasItemFlag(ItemFlag.HIDE_POTION_EFFECTS)) meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		item.setItemMeta(meta);
@@ -173,15 +180,21 @@ public class Remover implements Listener {
 				else plugin.getLogger().warning("Found invalid Material in attributes list: " + s);
 			}
 		}
-		List<String> enchantsList = lists.getStringList("enchants");
-		if(!isEmpty(enchantsList)) {
-			if(enchants == null) enchants = new ArrayList<>();
-			else enchants.clear();
-			for(String s : enchantsList) {
-				if(s.equals("EXAMPLE_ID")) continue;
-				Material type = Material.matchMaterial(s);
-				if(type != null) enchants.add(type);
-				else plugin.getLogger().warning("Found invalid Material in enchants list: " + s);
+		Object enchantsObj = lists.get("enchants");
+		if(enchantsObj instanceof Boolean) {
+			if((Boolean)enchantsObj) hideAllEnchants = true;
+		}
+		else if(enchantsObj instanceof List) {
+			List<String> enchantsList = Lists.convert((List<?>)enchantsObj, String.class);
+			if(!isEmpty(enchantsList)) {
+				if(enchants == null) enchants = new ArrayList<>();
+				else enchants.clear();
+				for(String s : enchantsList) {
+					if(s.equals("EXAMPLE_ID")) continue;
+					Material type = Material.matchMaterial(s);
+					if(type != null) enchants.add(type);
+					else plugin.getLogger().warning("Found invalid Material in enchants list: " + s);
+				}
 			}
 		}
 		// Listeners setup

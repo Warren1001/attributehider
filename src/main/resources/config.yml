@@ -6,12 +6,17 @@ command:
   no-permission: '&6You do not have permission to use this command!'
 lists: # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
   attributes: # The below options are only for attributes.
-     # If true, adds the below list to what the plugin already modifies. If false, only modifies the below list, ignoring what the plugin already modifies.
+    # If true, adds the below list to what the plugin already modifies. If false, only modifies the below list, ignoring what the plugin already modifies.
     mode: true
-    list: # List of item ids to remove attributes on. If you're happy with what the plugin already modifies, you don't have to change anything.
+    # List of item ids to remove attributes on. If you're happy with what the plugin already modifies, you don't have to change anything.
+    list:
     - 'EXAMPLE_ID'
-  enchants: # List of item ids to hide enchantments on. To disable, remove all values except the first one then change the first value to 'EXAMPLE_ID'.
+  # List of item ids to hide enchantments on. To hide ALL enchants, set 'enchants' to true. To disable, set 'enchants' to false. To specify material types, create a list of ids to hide enchants on.
+  enchants:
   - 'EXAMPLE_ID'
-  potions: false # Hide potion effects on all potions.
+  # Hide potion effects on all potions.
+  potions: false
+  # Hide the Unbreakable tag.
+  unbreakable: false
 # Don't touch this
-version: 4
+version: 5
