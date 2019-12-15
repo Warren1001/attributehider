@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kabryxis</groupId>
   <artifactId>attributehider</artifactId>
-  <version>5.5.0</version>
+  <version>5.6.0</version>
   <build>
     <finalName>AttributeHider</finalName>
     <plugins>
@@ -58,67 +58,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.14.4-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_8_1</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_8_2</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_8_3</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_9_1</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_9_2</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_10_1</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_11_1</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_12_1</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_13_2</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot1_14_1</artifactId>
-      <version>1.0.0</version>
+      <version>1.15-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
