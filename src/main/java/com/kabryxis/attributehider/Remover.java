@@ -27,7 +27,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.PluginManager;
 import org.inventivetalent.update.spiget.SpigetUpdate;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
@@ -219,9 +218,7 @@ public class Remover implements Listener {
 			}
 		}
 		// Listeners setup
-		PluginManager pm = plugin.getServer().getPluginManager();
-		pm.registerEvents(this, plugin);
-		//if(pm.getPlugin("Shopkeepers") != null) pm.registerEvents(new ShopkeepersListener(this), plugin);
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		// Updater setup
 		if(plugin.getConfig().getBoolean("check-updates")) {
 			if(!Version.VERSION.isVersionAtLeast(Version.v1_8_R2)) {
@@ -237,7 +234,7 @@ public class Remover implements Listener {
 				
 				@Override
 				public void updateAvailable(String newVersion, String url, boolean canDownload) {
-					plugin.message("A new version (" + newVersion + ") of AttributeHider is available.");
+					plugin.message(String.format("A new version (%s) of AttributeHider is available.", newVersion));
 				}
 				
 			});
