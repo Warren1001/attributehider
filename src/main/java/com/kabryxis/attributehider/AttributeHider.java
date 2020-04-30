@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class AttributeHider extends JavaPlugin implements Listener {
+public class AttributeHider extends JavaPlugin {
 	
 	private Remover remover;
 	
