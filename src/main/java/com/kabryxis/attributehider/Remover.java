@@ -20,16 +20,22 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.inventivetalent.update.spiget.SpigetUpdate;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Remover implements Listener {
@@ -51,7 +57,7 @@ public class Remover implements Listener {
 			valid.addAll(Arrays.asList(Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS,
 					Material.WOODEN_SWORD, Material.WOODEN_PICKAXE, Material.WOODEN_AXE, Material.WOODEN_SHOVEL, Material.WOODEN_HOE,
 					Material.IRON_SHOVEL, Material.STONE_SHOVEL, Material.GOLDEN_PICKAXE, Material.GOLDEN_AXE, Material.GOLDEN_SHOVEL, Material.GOLDEN_HOE,
-					Material.GOLDEN_SWORD, Material.DIAMOND_SHOVEL, Material.TURTLE_HELMET, Material.TRIDENT));
+					Material.GOLDEN_SWORD, Material.DIAMOND_SHOVEL, Material.TURTLE_HELMET, Material.TRIDENT, Material.CROSSBOW));
 		} else {
 			valid.addAll(Arrays.asList(Material.matchMaterial("GOLD_HELMET"), Material.matchMaterial("GOLD_CHESTPLATE"), Material.matchMaterial("GOLD_LEGGINGS"),
 					Material.matchMaterial("GOLD_BOOTS"), Material.matchMaterial("WOOD_SWORD"), Material.matchMaterial("WOOD_PICKAXE"),
@@ -81,7 +87,6 @@ public class Remover implements Listener {
 				}
 				else {
 					StructureModifier<ItemStack> modifier = packet.getItemModifier();
-					System.out.println(packet.getIntegers().read(0) + "," + packet.getIntegers().read(1));
 					ItemStack item = modifier.read(0);
 					modify(item);
 					modifier.write(0, item);
@@ -110,11 +115,6 @@ public class Remover implements Listener {
 		return plugin.getConfig().getBoolean("lists.unbreakable", false);
 	}
 	
-	public void modify(PlayerInventory inventory) {
-		inventory.setArmorContents(modify(inventory.getArmorContents()));
-		inventory.setContents(modify(inventory.getContents()));
-	}
-	
 	public void modify(Villager villager) {
 		WrappedEntityVillager entityVillager = WrappedEntityVillager.newInstance(villager);
 		WrappedMerchantRecipeList merchantRecipeList = entityVillager.getOffers();
@@ -136,23 +136,35 @@ public class Remover implements Listener {
 		items.forEach(this::modify);
 	}
 	
-	public ItemStack[] modify(ItemStack[] items) {
+	public void modify(ItemStack[] items) {
 		com.kabryxis.kabutils.data.Arrays.forEach(items, this::modify);
-		return items;
 	}
 	
-	public ItemStack modify(ItemStack item) {
-		if(!Items.exists(item)) return item;
+	public boolean modify(ItemStack item) {
+		if(!Items.exists(item)) return false;
 		Material type = item.getType();
-		if(!shouldRemoveAttributes(type)) return item;
+		if(!shouldRemoveAttributes(type)) return false;
 		ItemMeta meta = item.getItemMeta();
-		if(shouldRemoveAttributes(type)) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-		if(shouldHideUnbreakableTag()) meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-		if(shouldHideEnchants(type)) meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		boolean modified = false;
+		if(shouldRemoveAttributes(type) && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) {
+			modified = true;
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		}
+		if(shouldHideUnbreakableTag() && !meta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+			modified = true;
+			meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+		}
+		if(shouldHideEnchants(type) && !meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
+			modified = true;
+			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		}
 		if(shouldHidePotionEffects() && (type == Material.POTION || (Version.VERSION.isVersionAtLeast(Version.v1_9_R1)
-				&& (type == Material.SPLASH_POTION || type == Material.LINGERING_POTION)))) meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-		item.setItemMeta(meta);
-		return item;
+				&& (type == Material.SPLASH_POTION || type == Material.LINGERING_POTION))) && !meta.hasItemFlag(ItemFlag.HIDE_POTION_EFFECTS)) {
+			modified = true;
+			meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		}
+		if(modified) item.setItemMeta(meta);
+		return modified;
 	}
 	
 	@EventHandler
@@ -161,9 +173,10 @@ public class Remover implements Listener {
 		if(inventory instanceof MerchantInventory && inventory.getHolder() instanceof Villager) modify((Villager)inventory.getHolder());
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		modify(event.getPlayer().getInventory());
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onInventoryClick(InventoryClickEvent event) {
+		ItemStack item = event.getCurrentItem();
+		if(modify(item)) event.setCurrentItem(item);
 	}
 	
 	public void setup() {
@@ -208,7 +221,7 @@ public class Remover implements Listener {
 		// Listeners setup
 		PluginManager pm = plugin.getServer().getPluginManager();
 		pm.registerEvents(this, plugin);
-		if(pm.getPlugin("Shopkeepers") != null) pm.registerEvents(new ShopkeepersListener(this), plugin);
+		//if(pm.getPlugin("Shopkeepers") != null) pm.registerEvents(new ShopkeepersListener(this), plugin);
 		// Updater setup
 		if(plugin.getConfig().getBoolean("check-updates")) {
 			if(!Version.VERSION.isVersionAtLeast(Version.v1_8_R2)) {

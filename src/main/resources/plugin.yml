@@ -1,6 +1,6 @@
 name: AttributeHider
 main: com.kabryxis.attributehider.AttributeHider
-version: 5.6.0
+version: 5.6.1
 description: Hides selected item attributes.
 author: Kabryxis
 depend: [ProtocolLib]
