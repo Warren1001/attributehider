@@ -2,29 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kabryxis</groupId>
   <artifactId>attributehider</artifactId>
-  <version>5.6.1</version>
+  <version>6.0.0</version>
   <build>
     <finalName>AttributeHider</finalName>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.3</version>
-        <configuration>
-          <createDependencyReducedPom>false</createDependencyReducedPom>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <minimizeJar>true</minimizeJar>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -42,52 +23,22 @@
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
     <repository>
-      <id>inventive-repo</id>
-      <url>https://repo.inventivetalent.org/content/groups/public/</url>
-    </repository>
-    <repository>
       <id>dmulloy2-repo</id>
       <url>http://repo.dmulloy2.net/content/groups/public/</url>
-    </repository>
-    <repository>
-      <id>shopkeepers-repo</id>
-      <url>https://nexus.lichtspiele.org/repository/releases/</url>
     </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.15.2-R0.1-SNAPSHOT</version>
+      <version>1.16.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.comphenix.protocol</groupId>
       <artifactId>ProtocolLib</artifactId>
-      <version>4.5.0</version>
+      <version>4.5.1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.nisovin.shopkeepers</groupId>
-      <artifactId>ShopkeepersAPI</artifactId>
-      <version>2.9.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.inventivetalent.spiget-update</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>1.4.2-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.bukkit</groupId>
-          <artifactId>bukkit</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.kabryxis</groupId>
-      <artifactId>kabutils</artifactId>
-      <version>0.0.1</version>
     </dependency>
   </dependencies>
 </project>

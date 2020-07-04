@@ -1,13 +1,12 @@
 name: AttributeHider
 main: com.kabryxis.attributehider.AttributeHider
-version: 5.6.1
-description: Hides selected item attributes.
-author: Kabryxis
+version: 6.0.0
+api-version: '1.16'
+description: Hides select item attributes.
+author: Kabryxis/Warren1001
 depend: [ProtocolLib]
-softdepend: [Shopkeepers]
-api-version: 1.15
 commands:
   attributehider:
-    usage: /ah reload
+    usage: /ah
     description: Reloads the AttributeHider configuration.
     aliases: [ah]

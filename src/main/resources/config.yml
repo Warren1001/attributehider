@@ -1,22 +1,31 @@
-# Updater courtesy of inventivetalent. If you want the plugin to notify you of any updates.
-check-updates: true
+# https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
+# You can change the lists to true or false, one material, or a list of materials.
+# True means it will remove the modifier from all items. False means it will not remove the modifier from any item.
+# Explicitly putting a material/some materials will whitelist only those materials to be modified.
+# Here's an example of possible values:
+#
+# lists:
+#   attributes: DIAMOND_SWORD # Hides attributes for a diamond sword only.
+# -- or --
+# lists:
+#   enchants: # Hides enchants for a diamond sword and a diamond axe only.
+#   - DIAMOND_SWORD
+#   - DIAMOND_AXE
+# -- or --
+# lists:
+#   potions: false # Will not hide any potion effects for any item.
+# -- or --
+# lists:
+#   unbreakable: true # Hides the unbreakable tag on all items.
+#
+
+lists:
+  attributes: true
+  enchants: false
+  potions: false
+  unbreakable: false
 command:
   permission: ah.reload
   reloaded: '&6The AttributeHider configuration has been reloaded.'
   no-permission: '&6You do not have permission to use this command!'
-lists: # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
-  attributes: # The below options are only for attributes.
-    # If true, adds the below list to what the plugin already modifies. If false, only modifies the below list, ignoring what the plugin already modifies.
-    mode: true
-    # List of item ids to remove attributes on. If you're happy with what the plugin already modifies, you don't have to change anything.
-    list:
-    - 'EXAMPLE_ID'
-  # List of item ids to hide enchantments on. To hide ALL enchants, set 'enchants' to true. To disable, set 'enchants' to false. To specify material types, create a list of ids to hide enchants on.
-  enchants:
-  - 'EXAMPLE_ID'
-  # Hide potion effects on all potions.
-  potions: false
-  # Hide the Unbreakable tag.
-  unbreakable: false
-# Don't touch this
-version: 5
+check-updates: true
