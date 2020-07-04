@@ -1,17 +1,10 @@
 package com.kabryxis.attributehider;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
+import com.kabryxis.attributehider.remover.Remover;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class AttributeHider extends JavaPlugin {
 	
@@ -19,20 +12,11 @@ public class AttributeHider extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		Plugin protocolPlugin = getServer().getPluginManager().getPlugin("ProtocolLib");
-		if (protocolPlugin == null) {
+		if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
 			getLogger().severe("AttributeHider requires ProtocolLib to be installed. Disabling.");
+			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
-		Set<PacketType> packetTypes = new HashSet<>(PacketType.Play.Server.getInstance().values());
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, packetTypes) {
-			
-			@Override
-			public void onPacketSending(PacketEvent event) {
-				getLogger().info(event.getPacketType().toString());
-			}
-			
-		});
 		saveDefaultConfig();
 		remover = new Remover(this);
 	}
@@ -41,13 +25,13 @@ public class AttributeHider extends JavaPlugin {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("attributehider")) {
 			if (!sender.hasPermission(getConfig().getString("command.permission", "ah.reload"))) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig()
-						.getString("command.no-permission", "&6You do not have permission to use this command!")));
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+						getConfig().getString("command.no-permission", "&6You do not have permission to use this command!")));
 				return true;
 			}
 			reloadConfig();
-			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig()
-					.getString("command.reloaded", "&6The AttributeHider configuration has been reloaded.")));
+			sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+					getConfig().getString("command.reloaded", "&6The AttributeHider configuration has been reloaded.")));
 			remover.setup();
 			return true;
 		}

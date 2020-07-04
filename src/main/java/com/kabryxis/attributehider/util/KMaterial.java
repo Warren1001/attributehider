@@ -1,4 +1,4 @@
-package com.kabryxis.attributehider;
+package com.kabryxis.attributehider.util;
 
 import org.bukkit.Material;
 

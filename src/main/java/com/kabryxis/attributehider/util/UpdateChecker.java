@@ -1,4 +1,4 @@
-package com.kabryxis.attributehider;
+package com.kabryxis.attributehider.util;
 
 import com.google.common.io.Resources;
 import com.google.common.net.HttpHeaders;
