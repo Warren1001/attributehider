@@ -9,7 +9,7 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.Converters;
 import com.kabryxis.attributehider.merchant.MerchantRecipeListConverter;
-import com.kabryxis.attributehider.merchant.WrappedMCTrList;
+import com.kabryxis.attributehider.merchant.MCTrList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.plugin.Plugin;
@@ -88,7 +88,7 @@ public class RemoverPacketListener extends PacketAdapter {
 	
 	public void modifyMerchantRecipeListLegacy(StructureModifier<Object> modifier) {
 		
-		WrappedMCTrList tradeList = new WrappedMCTrList(modifier.read(0));
+		MCTrList tradeList = new MCTrList(modifier.read(0));
 		
 		for (com.kabryxis.attributehider.merchant.MerchantRecipe recipe : tradeList.getMerchantRecipeList()) {
 			remover.modify(recipe.getBuyItem1());

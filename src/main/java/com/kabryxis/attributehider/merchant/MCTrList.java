@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WrappedMCTrList {
+public class MCTrList {
 	
 	private static MethodAccessor READ_INT;
 	private static MethodAccessor READ_BYTE;
@@ -27,7 +27,7 @@ public class WrappedMCTrList {
 	
 	private List<MerchantRecipe> merchantRecipeList;
 	
-	public WrappedMCTrList(Object handle) {
+	public MCTrList(Object handle) {
 		
 		if (READ_INT == null) {
 			
