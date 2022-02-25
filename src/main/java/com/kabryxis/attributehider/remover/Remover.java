@@ -79,16 +79,26 @@ public class Remover implements Listener {
 	}
 	
 	public ItemStack modify(ItemStack item) {
-		if (item == null || item.getType() == Material.AIR) return item;
+		if (item == null || item.getType() == Material.AIR) {
+			return item;
+		}
 		Material type = item.getType();
 		ItemMeta meta = item.getItemMeta();
 		// Can't decide if I should create an ItemMeta even if an ItemStack does not get modified.
 		// Slightly increases packet size for packets that are modified by creating empty ItemMeta for
 		// items that do not already have an ItemMeta? Makes code a lil more tedious though.
-		if (shouldRemoveAttributes(type)) meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-		if (shouldHideEnchants(type)) meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		if (shouldHidePotionEffects(type)) meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-		if (shouldHideUnbreakableTag(type)) meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+		if (shouldRemoveAttributes(type)) {
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		}
+		if (shouldHideEnchants(type)) {
+			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		}
+		if (shouldHidePotionEffects(type)) {
+			meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		}
+		if (shouldHideUnbreakableTag(type)) {
+			meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+		}
 		item.setItemMeta(meta);
 		return item;
 	}
@@ -110,7 +120,9 @@ public class Remover implements Listener {
 		Object object = lists.get(type, defaultValue);
 		if (object instanceof Boolean) {
 			
-			if (((Boolean)object)) materials = setIfAll.get();
+			if (((Boolean)object)) {
+				materials = setIfAll.get();
+			}
 			
 		} else if (object instanceof String) {
 			

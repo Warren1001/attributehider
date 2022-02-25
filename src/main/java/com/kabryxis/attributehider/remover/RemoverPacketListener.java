@@ -7,8 +7,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.utility.MinecraftVersion;
-import com.comphenix.protocol.wrappers.Converters;
-import com.kabryxis.attributehider.merchant.MerchantRecipeListConverter;
 import com.kabryxis.attributehider.merchant.MCTrList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -45,7 +43,7 @@ public class RemoverPacketListener extends PacketAdapter {
 			
 		} else if (packet.getType() == PacketType.Play.Server.OPEN_WINDOW_MERCHANT) { // post 1.14 packet for Merchants
 			
-			modifyMerchantRecipeList(getMerchantRecipeLists(packet));
+			modifyMerchantRecipeList(packet.getMerchantRecipeLists());
 			
 		} else if (packet.getType() == PacketType.Play.Server.CUSTOM_PAYLOAD) { // pre 1.14 packet for Merchants
 			
@@ -92,7 +90,9 @@ public class RemoverPacketListener extends PacketAdapter {
 		
 		for (com.kabryxis.attributehider.merchant.MerchantRecipe recipe : tradeList.getMerchantRecipeList()) {
 			remover.modify(recipe.getBuyItem1());
-			if (recipe.hasBuyItem2()) remover.modify(recipe.getBuyItem2());
+			if (recipe.hasBuyItem2()) {
+				remover.modify(recipe.getBuyItem2());
+			}
 			remover.modify(recipe.getResult());
 		}
 		
@@ -102,11 +102,6 @@ public class RemoverPacketListener extends PacketAdapter {
 	
 	public static StructureModifier<Object> getPacketDataSerializers(PacketContainer packet) {
 		return packet.getModifier().withType(MinecraftReflection.getMinecraftClass("PacketDataSerializer"));
-	}
-	
-	public static StructureModifier<List<MerchantRecipe>> getMerchantRecipeLists(PacketContainer packet) {
-		return packet.getModifier()
-				.withType(MinecraftReflection.getMinecraftClass("MerchantRecipeList"), Converters.ignoreNull(new MerchantRecipeListConverter()));
 	}
 	
 }
