@@ -82,8 +82,7 @@ public class Remover implements Listener {
 			return item;
 		}
 		
-		ItemStack clone = item.clone();
-		Material  type  = clone.getType();
+		Material  type  = item.getType();
 		
 		boolean removeAttributes    = shouldRemoveAttributes(type);
 		boolean removeEnchants      = shouldHideEnchants(type);
@@ -91,6 +90,7 @@ public class Remover implements Listener {
 		boolean removeUnbreakable   = shouldHideUnbreakableTag(type);
 		if (removeAttributes || removeEnchants || removePotionEffects || removeUnbreakable) {
 			
+			ItemStack clone = item.clone();
 			ItemMeta meta = clone.getItemMeta();
 			
 			if (removeAttributes) {
@@ -107,10 +107,10 @@ public class Remover implements Listener {
 			}
 			
 			clone.setItemMeta(meta);
-			
+			return clone;
 		}
 		
-		return clone;
+		return item;
 	}
 	
 	public void setup() {
