@@ -89,11 +89,11 @@ public class RemoverPacketListener extends PacketAdapter {
 		MCTrList tradeList = new MCTrList(modifier.read(0));
 		
 		for (com.kabryxis.attributehider.merchant.MerchantRecipe recipe : tradeList.getMerchantRecipeList()) {
-			remover.modify(recipe.getBuyItem1());
+			recipe.setBuyItem1(remover.modify(recipe.getBuyItem1()));
 			if (recipe.hasBuyItem2()) {
-				remover.modify(recipe.getBuyItem2());
+				recipe.setBuyItem2(remover.modify(recipe.getBuyItem2()));
 			}
-			remover.modify(recipe.getResult());
+			recipe.setResult(remover.modify(recipe.getResult()));
 		}
 		
 		modifier.write(0, tradeList.convertToPacketDataSerializer());
