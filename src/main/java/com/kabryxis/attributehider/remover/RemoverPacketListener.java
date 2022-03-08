@@ -51,10 +51,8 @@ public class RemoverPacketListener extends PacketAdapter {
 				if (packet.getMinecraftKeys().read(0).getKey().equals("trader_list")) {
 					modifyMerchantRecipeListLegacy(getPacketDataSerializers(packet));
 				}
-			} else {
-				if (packet.getStrings().read(0).equals("MC|TrList")) {
-					modifyMerchantRecipeListLegacy(getPacketDataSerializers(packet));
-				}
+			} else if (packet.getStrings().read(0).equals("MC|TrList")) {
+				modifyMerchantRecipeListLegacy(getPacketDataSerializers(packet));
 			}
 			
 		} else { // PacketType.Play.Server.SET_SLOT
