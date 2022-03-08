@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Remover implements Listener {
@@ -69,38 +70,47 @@ public class Remover implements Listener {
 	}
 	
 	public List<ItemStack> modify(List<ItemStack> items) {
-		items.forEach(this::modify);
-		return items;
+		return items.stream().map(this::modify).collect(Collectors.toList());
 	}
 	
 	public ItemStack[] modify(ItemStack... items) {
-		Stream.of(items).forEach(this::modify);
-		return items;
+		return Stream.of(items).map(this::modify).toArray(ItemStack[]::new);
 	}
 	
 	public ItemStack modify(ItemStack item) {
 		if (item == null || item.getType() == Material.AIR) {
 			return item;
 		}
-		Material type = item.getType();
-		ItemMeta meta = item.getItemMeta();
-		// Can't decide if I should create an ItemMeta even if an ItemStack does not get modified.
-		// Slightly increases packet size for packets that are modified by creating empty ItemMeta for
-		// items that do not already have an ItemMeta? Makes code a lil more tedious though.
-		if (shouldRemoveAttributes(type)) {
-			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		
+		ItemStack clone = item.clone();
+		Material  type  = clone.getType();
+		
+		boolean removeAttributes    = shouldRemoveAttributes(type);
+		boolean removeEnchants      = shouldHideEnchants(type);
+		boolean removePotionEffects = shouldHidePotionEffects(type);
+		boolean removeUnbreakable   = shouldHideUnbreakableTag(type);
+		if (removeAttributes || removeEnchants || removePotionEffects || removeUnbreakable) {
+			
+			ItemMeta meta = clone.getItemMeta();
+			
+			if (removeAttributes) {
+				meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+			}
+			if (removeEnchants) {
+				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+			}
+			if (removePotionEffects) {
+				meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+			}
+			if (removeUnbreakable) {
+				meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+			}
+			
+			clone.setItemMeta(meta);
+			
 		}
-		if (shouldHideEnchants(type)) {
-			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		}
-		if (shouldHidePotionEffects(type)) {
-			meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-		}
-		if (shouldHideUnbreakableTag(type)) {
-			meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-		}
-		item.setItemMeta(meta);
-		return item;
+		
+		return clone;
 	}
 	
 	public void setup() {
