@@ -26,8 +26,9 @@ public class UpdateChecker {
 					connection.setRequestProperty(HttpHeaders.USER_AGENT, "Mozilla/5.0");
 					
 					String spigotVersion = Resources.toString(connection.getURL(), Charset.defaultCharset());
-					
-					if (spigotVersion.equalsIgnoreCase(plugin.getDescription().getVersion())) {
+					String localVersion = plugin.getDescription().getVersion();
+					//plugin.getLogger().info(String.format("spigotVersion=%s,localVersion=%s", spigotVersion, localVersion));
+					if (spigotVersion.equalsIgnoreCase(localVersion)) {
 						handler.accept(ResponseType.UP_TO_DATE);
 					} else {
 						handler.accept(ResponseType.NEW_VERSION);
