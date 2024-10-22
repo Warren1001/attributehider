@@ -1,31 +1,42 @@
+# NOTE: The two links below are the most up to date lists used for this configuration. If you are on an older version of the game,
+#       the enums given in each list may not exist or have a different name. You are on your own for figuring out the proper name
+#       on older game versions.
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/inventory/ItemFlag.html - This is the list of all item flags, CASE_SENSITIVE.
+# The key of a list needs to be the exact match of an ItemFlag enum listed in the link above.
+#
 # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html - This is the list of all available materials, CASE_SENSITIVE.
-# You can change the lists to true or false, one material, or a list of materials.
+# You can change the value of each list to true or false, one Material, or a list of Materials.
 # True means it will remove the modifier from all items. False means it will not remove the modifier from any item.
 # Explicitly putting a material/some materials will whitelist only those materials to be modified.
 # Here's an example of possible values:
-#
 # lists:
-#   attributes: DIAMOND_SWORD # Hides attributes for a diamond sword only.
+#   HIDE_ATTRIBUTES: DIAMOND_SWORD # Hides attributes for a diamond sword only.
 # -- or --
 # lists:
-#   enchants: # Hides enchants for a diamond sword and a diamond axe only.
+#   HIDE_ENCHANTS: # Hides enchants for a diamond sword and a diamond axe only.
 #   - DIAMOND_SWORD
 #   - DIAMOND_AXE
 # -- or --
 # lists:
-#   potions: false # Will not hide any potion effects for any item.
+#   HIDE_ADDITIONAL_TOOLTIP: false # Will NOT hide any additional tooltips for any item.
 # -- or --
 # lists:
-#   unbreakable: true # Hides the unbreakable tag on all items.
+#   HIDE_UNBREAKABLE: true # Hides the unbreakable tag on all items.
 #
-
+# The values given in each list are only used if the name of the ItemFlag is spelled correctly including case sensitivity.
+# It will otherwise be ignored. If you find that something is not working and there are no errors, make sure you have the
+# correct ItemFlag spelling.
 lists:
-  attributes: true
-  enchants: false
-  potions: false
-  unbreakable: false
+  HIDE_ADDITIONAL_TOOLTIP: false
+  HIDE_ARMOR_TRIM: false
+  HIDE_ATTRIBUTES: true
+  HIDE_DESTROYS: false
+  HIDE_DYE: false
+  HIDE_ENCHANTS: false
+  HIDE_PLACED_ON: false
+  HIDE_UNBREAKABLE: false
 command:
   permission: ah.reload
-  reloaded: '&6The AttributeHider configuration has been reloaded.'
-  no-permission: '&6You do not have permission to use this command!'
+  reloaded: '&6The AttributeHider configuration has been reloaded.' # If this is left blank, no message will print at all
+  no-permission: '&6You do not have permission to use this command!' # If this is left blank, no message will print at all
 check-updates: true

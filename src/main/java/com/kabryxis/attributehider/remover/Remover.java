@@ -5,8 +5,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.Sets;
 import com.kabryxis.attributehider.AttributeHider;
-import com.kabryxis.attributehider.util.KMaterial;
-import com.kabryxis.attributehider.util.UpdateChecker;
+import com.kabryxis.attributehider.remover.list.BooleanMaterialList;
+import com.kabryxis.attributehider.remover.list.EnumSetMaterialList;
+import com.kabryxis.attributehider.remover.list.MaterialList;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
@@ -14,10 +15,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,48 +24,29 @@ public class Remover implements Listener {
 	
 	private final AttributeHider plugin;
 	
-	private Set<Material> removeAttributesFrom;
-	private Set<Material> removeEnchantsFrom;
-	private Set<Material> removePotionEffectsFrom;
-	private Set<Material> removeUnbreakableFrom;
+	private final Map<ItemFlag, MaterialList> materialLists = new HashMap<>();
 	
 	public Remover(AttributeHider plugin) {
 		this.plugin = plugin;
 		
-		Set<PacketType> packetTypes = Sets.newHashSet(PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT);
-		if (MinecraftVersion.VILLAGE_UPDATE.atOrAbove()) {
-			packetTypes.add(PacketType.Play.Server.OPEN_WINDOW_MERCHANT);
+		Set<PacketType> packetTypes;
+		if (AttributeHider.DEV) {
+			
+			packetTypes = PacketType.Play.Server.getInstance().values();
+			
 		} else {
-			packetTypes.add(PacketType.Play.Server.CUSTOM_PAYLOAD);
+			
+			packetTypes = Sets.newHashSet(PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT);
+			if (MinecraftVersion.VILLAGE_UPDATE.atOrAbove()) {
+				packetTypes.add(PacketType.Play.Server.OPEN_WINDOW_MERCHANT);
+			} else {
+				packetTypes.add(PacketType.Play.Server.CUSTOM_PAYLOAD);
+			}
+			
 		}
+		
 		ProtocolLibrary.getProtocolManager().addPacketListener(new RemoverPacketListener(plugin, this, packetTypes));
 		setup();
-		
-		if (plugin.getConfig().getBoolean("check-updates")) {
-			UpdateChecker.check(plugin, 10604, response -> {
-				if (response == UpdateChecker.ResponseType.NEW_VERSION) {
-					plugin.getLogger().info("There is a new version of AttributeHider available!");
-				} else if (response == UpdateChecker.ResponseType.ERROR) {
-					plugin.getLogger().warning("Unable to check for updates.");
-				}
-			});
-		}
-	}
-	
-	public boolean shouldRemoveAttributes(Material type) {
-		return removeAttributesFrom != null && removeAttributesFrom.contains(type);
-	}
-	
-	public boolean shouldHideEnchants(Material type) {
-		return removeEnchantsFrom != null && removeEnchantsFrom.contains(type);
-	}
-	
-	public boolean shouldHidePotionEffects(Material type) {
-		return removePotionEffectsFrom != null && removePotionEffectsFrom.contains(type);
-	}
-	
-	public boolean shouldHideUnbreakableTag(Material type) {
-		return removeUnbreakableFrom != null && removeUnbreakableFrom.contains(type);
 	}
 	
 	public List<ItemStack> modify(List<ItemStack> items) {
@@ -84,73 +64,88 @@ public class Remover implements Listener {
 		
 		Material  type  = item.getType();
 		
-		boolean removeAttributes    = shouldRemoveAttributes(type);
-		boolean removeEnchants      = shouldHideEnchants(type);
-		boolean removePotionEffects = shouldHidePotionEffects(type);
-		boolean removeUnbreakable   = shouldHideUnbreakableTag(type);
-		if (removeAttributes || removeEnchants || removePotionEffects || removeUnbreakable) {
+		ItemStack clone = null;
+		ItemMeta meta = null;
+		
+		for (ItemFlag flag : ItemFlag.values()) {
 			
-			ItemStack clone = item.clone();
-			ItemMeta meta = clone.getItemMeta();
-			
-			if (removeAttributes) {
-				meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-			}
-			if (removeEnchants) {
-				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-			}
-			if (removePotionEffects) {
-				meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-			}
-			if (removeUnbreakable) {
-				meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+			MaterialList materialList = materialLists.get(flag);
+			if (materialList.shouldRemove(type)) {
+				
+				if (clone == null) {
+					clone = item.clone();
+				}
+				if (meta == null) {
+					meta = clone.getItemMeta();
+				}
+				
+				meta.addItemFlags(flag);
+				clone.setItemMeta(meta);
+				
 			}
 			
-			clone.setItemMeta(meta);
-			return clone;
 		}
 		
-		return item;
+		return clone != null ? clone : item;
 	}
 	
 	public void setup() {
 		
-		removeAttributesFrom = buildSet("attributes", true, KMaterial::getAttributeableMaterials);
-		removeEnchantsFrom = buildSet("enchants", false, () -> Sets.newHashSet(Material.values()));
-		removePotionEffectsFrom = buildSet("potions", false, KMaterial::getPotionableMaterials);
-		removeUnbreakableFrom = buildSet("unbreakable", false, KMaterial::getUnbreakableMaterials);
+		materialLists.clear();
+		
+		for (ItemFlag flag : ItemFlag.values()) {
+			materialLists.put(flag, createMaterialList(flag));
+		}
 		
 	}
 	
-	private Set<Material> buildSet(String type, Object defaultValue, Supplier<Set<Material>> setIfAll) {
+	private MaterialList createMaterialList(ItemFlag flag) {
 		
-		Set<Material>        materials = null;
-		ConfigurationSection lists     = plugin.getConfig().getConfigurationSection("lists");
+		String               key   = flag.name();
+		MaterialList         materialList;
+		ConfigurationSection lists = plugin.getConfig().getConfigurationSection("lists");
 		
-		Object object = lists.get(type, defaultValue);
+		Object object = lists.get(key, false);
 		if (object instanceof Boolean) {
 			
-			if (((Boolean)object)) {
-				materials = setIfAll.get();
-			}
+			materialList = new BooleanMaterialList((Boolean)object);
 			
 		} else if (object instanceof String) {
 			
 			Material material = Material.matchMaterial((String)object);
 			if (material == null) {
-				plugin.getLogger().warning(String.format("Provided invalid Material for %s: %s", type, object));
+				plugin.getLogger().warning(String.format("Provided invalid Material for %s: %s", key, object));
+				materialList = new BooleanMaterialList(false);
 			} else {
-				materials = Collections.singleton(material);
+				materialList = new EnumSetMaterialList(Collections.singleton(material));
 			}
 			
 		} else if (object instanceof List) {
 			
-			materials = KMaterial.parseMaterialCollection(lists.getStringList(type),
-					s -> plugin.getLogger().warning(String.format("Provided invalid Material for %s: %s", type, s)));
+			materialList = new EnumSetMaterialList(parseMaterialCollection(lists.getStringList(key),
+					s -> plugin.getLogger().warning(String.format("Provided invalid Material for %s: %s", key, s))));
+			
+		} else {
+			
+			plugin.getLogger().warning(String.format("The value given for the list %s was not a true or false, a single Material, or a list of Materials.", key));
+			materialList = new BooleanMaterialList(false);
 			
 		}
 		
-		return materials;
+		return materialList;
+	}
+	
+	private Set<Material> parseMaterialCollection(Collection<String> collection, Consumer<String> invalidMaterialConsumer) {
+		Set<Material> materialList = EnumSet.noneOf(Material.class);
+		for (String string : collection) {
+			Material material = Material.matchMaterial(string);
+			if (material == null) {
+				invalidMaterialConsumer.accept(string);
+			} else {
+				materialList.add(material);
+			}
+		}
+		return materialList;
 	}
 	
 }

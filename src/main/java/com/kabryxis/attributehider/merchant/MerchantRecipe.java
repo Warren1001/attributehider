@@ -3,7 +3,7 @@ package com.kabryxis.attributehider.merchant;
 import org.bukkit.inventory.ItemStack;
 
 /*
-  Use is because of the fact that 1.8 Bukkit does not have MerchantRecipe class
+ * Spigot 1.8.8 does not have MerchantRecipe object
  */
 public class MerchantRecipe {
 	

@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.utility.MinecraftVersion;
+import com.kabryxis.attributehider.AttributeHider;
 import com.kabryxis.attributehider.merchant.MCTrList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -28,8 +29,11 @@ public class RemoverPacketListener extends PacketAdapter {
 	
 	@Override
 	public void onPacketSending(PacketEvent event) {
-		
 		PacketContainer packet = event.getPacket();
+		
+		if (AttributeHider.DEV) {
+			printType(packet.getType());
+		}
 		
 		if (packet.getType() == PacketType.Play.Server.WINDOW_ITEMS) {
 			
@@ -55,10 +59,14 @@ public class RemoverPacketListener extends PacketAdapter {
 				modifyMerchantRecipeListLegacy(getPacketDataSerializers(packet));
 			}
 			
-		} else { // PacketType.Play.Server.SET_SLOT
+		} else if (packet.getType() == PacketType.Play.Server.SET_SLOT) {
 			
 			StructureModifier<ItemStack> modifier = packet.getItemModifier();
 			modifier.write(0, remover.modify(modifier.read(0)));
+			
+		} else if (!AttributeHider.DEV) {
+			
+			plugin.getLogger().severe(String.format("Unhandled packet type '%s', this should not happen!", packet.getType().name()));
 			
 		}
 		
@@ -100,6 +108,35 @@ public class RemoverPacketListener extends PacketAdapter {
 	
 	public static StructureModifier<Object> getPacketDataSerializers(PacketContainer packet) {
 		return packet.getModifier().withType(MinecraftReflection.getMinecraftClass("PacketDataSerializer"));
+	}
+	
+	/*private final Set<PacketType> DEV_IGNORE = Sets.newHashSet(
+			PacketType.Play.Server.REL_ENTITY_MOVE,
+			PacketType.Play.Server.REL_ENTITY_MOVE_LOOK,
+			PacketType.Play.Server.UPDATE_TIME,
+			PacketType.Play.Server.ENTITY_VELOCITY,
+			PacketType.Play.Server.ENTITY_HEAD_ROTATION,
+			PacketType.Play.Server.BLOCK_CHANGE,
+			PacketType.Play.Server.MAP_CHUNK,
+			PacketType.Play.Server.MULTI_BLOCK_CHANGE,
+			PacketType.Play.Server.KEEP_ALIVE,
+			PacketType.Play.Server.CHUNK_BATCH_START,
+			PacketType.Play.Server.CHUNK_BATCH_FINISHED,
+			PacketType.Play.Server.ADVANCEMENTS,
+			PacketType.Play.Server.UPDATE_HEALTH,
+			PacketType.Play.Server.POSITION,
+			PacketType.Play.Server.SYSTEM_CHAT,
+			PacketType.Play.Server.INITIALIZE_BORDER,
+			PacketType.Play.Server.SPAWN_POSITION,
+			PacketType.Play.Server.ENTITY_LOOK,
+			PacketType.Play.Server.NAMED_SOUND_EFFECT,
+			PacketType.Play.Server.PLAYER_INFO
+	);*/
+	
+	private void printType(PacketType type) {
+		/*if (!DEV_IGNORE.contains(type)) {
+			plugin.getLogger().info(type.name());
+		}*/
 	}
 	
 }
