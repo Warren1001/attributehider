@@ -1,12 +1,15 @@
 package com.kabryxis.attributehider.remover;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.utility.MinecraftVersion;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.Pair;
 import com.kabryxis.attributehider.AttributeHider;
 import com.kabryxis.attributehider.merchant.MCTrList;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +26,7 @@ public class RemoverPacketListener extends PacketAdapter {
 	private final Remover remover;
 	
 	public RemoverPacketListener(Plugin plugin, Remover remover, Set<PacketType> packetTypes) {
-		super(plugin, packetTypes);
+		super(plugin, ListenerPriority.HIGH, packetTypes);
 		this.remover = remover;
 	}
 	
@@ -64,6 +67,23 @@ public class RemoverPacketListener extends PacketAdapter {
 			StructureModifier<ItemStack> modifier = packet.getItemModifier();
 			modifier.write(0, remover.modify(modifier.read(0)));
 			
+		} else if (packet.getType() == PacketType.Play.Server.ENTITY_EQUIPMENT) {
+			
+			int entityId = event.getPacket().getIntegers().read(0);
+			//plugin.getLogger().info(String.format("packet=%s,player=%s", entityId, event.getPlayer().getEntityId()));
+			if (event.getPlayer().getEntityId() == entityId) {
+				
+				List<Pair<EnumWrappers.ItemSlot, ItemStack>> armor = event.getPacket().getSlotStackPairLists().read(0);
+				
+				for (int i = 0; i < armor.size(); i++) {
+					Pair<EnumWrappers.ItemSlot, ItemStack> pair = armor.get(i);
+					armor.set(i, new Pair<>(pair.getFirst(), remover.modify(pair.getSecond())));
+				}
+				
+				event.getPacket().getSlotStackPairLists().write(0, armor);
+				
+			}
+		
 		} else if (!AttributeHider.DEV) {
 			
 			plugin.getLogger().severe(String.format("Unhandled packet type '%s', this should not happen!", packet.getType().name()));
@@ -130,7 +150,8 @@ public class RemoverPacketListener extends PacketAdapter {
 			PacketType.Play.Server.SPAWN_POSITION,
 			PacketType.Play.Server.ENTITY_LOOK,
 			PacketType.Play.Server.NAMED_SOUND_EFFECT,
-			PacketType.Play.Server.PLAYER_INFO
+			PacketType.Play.Server.PLAYER_INFO,
+			PacketType.Play.Server.ENTITY_TELEPORT
 	);*/
 	
 	private void printType(PacketType type) {

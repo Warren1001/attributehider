@@ -36,7 +36,7 @@ public class Remover implements Listener {
 			
 		} else {
 			
-			packetTypes = Sets.newHashSet(PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT);
+			packetTypes = Sets.newHashSet(PacketType.Play.Server.WINDOW_ITEMS, PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.ENTITY_EQUIPMENT);
 			if (MinecraftVersion.VILLAGE_UPDATE.atOrAbove()) {
 				packetTypes.add(PacketType.Play.Server.OPEN_WINDOW_MERCHANT);
 			} else {
@@ -86,7 +86,12 @@ public class Remover implements Listener {
 			
 		}
 		
-		return clone != null ? clone : item;
+		if (clone != null) {
+			//plugin.getLogger().info(String.format("Modified an item '%s'", clone));
+			return clone;
+		}
+		
+		return item;
 	}
 	
 	public void setup() {
